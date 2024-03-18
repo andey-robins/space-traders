@@ -11,4 +11,3 @@ vite.config.ts.timestamp-*
 
 # some live scripts used for testing and examination
 vars.sh
-handson.sh
