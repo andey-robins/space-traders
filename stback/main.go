@@ -1,4 +1,4 @@
-package stback
+package main
 
 import (
 	"net/http"
@@ -9,7 +9,9 @@ import (
 func main() {
 	router := gin.Default()
 
-	router.Get("/ping", pong)
+	router.GET("/ping", pong)
+
+	router.Run(":8080")
 }
 
 func pong(c *gin.Context) {
