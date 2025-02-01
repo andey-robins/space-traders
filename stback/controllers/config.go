@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/andey-robins/space-traders/stback/models"
 	"github.com/andey-robins/space-traders/stback/services"
@@ -16,7 +17,8 @@ func (cc *ConfigController) CreateController(r *gin.Engine) *gin.Engine {
 	configGroup := r.Group("/configs")
 	{
 		configGroup.GET("/all", cc.getAll)
-		configGroup.POST("/save", cc.save)
+		configGroup.PUT("/save", cc.save)
+		configGroup.DELETE("/:configId", cc.delete)
 	}
 
 	cc.service = services.NewConfigService()
@@ -46,4 +48,20 @@ func (cc *ConfigController) save(c *gin.Context) {
 	if err == nil {
 		c.Status(http.StatusOK)
 	}
+}
+
+func (cc *ConfigController) delete(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("configId"))
+	if err != nil {
+		c.Status(http.StatusBadRequest)
+		return
+	}
+
+	err = cc.service.DeleteById(id)
+	if err != nil {
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	c.Status(http.StatusOK)
 }

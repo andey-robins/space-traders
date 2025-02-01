@@ -26,5 +26,22 @@ func (cs *ConfigService) GetAll() ([]*models.Config, error) {
 }
 
 func (cs *ConfigService) Save(config *models.Config) error {
-	return cs.repo.Save(config)
+	oldConfig, err := cs.repo.GetById(config.Id)
+	if err != nil {
+		return err
+	}
+
+	if oldConfig == nil {
+		return cs.repo.Create(config)
+	} else {
+		return cs.repo.Update(config)
+	}
+}
+
+func (cs *ConfigService) Delete(config *models.Config) error {
+	return cs.repo.Delete(config.Id)
+}
+
+func (cs *ConfigService) DeleteById(id models.ConfigId) error {
+	return cs.repo.Delete(id)
 }

@@ -1,5 +1,5 @@
-import type { Config } from "@/types/config";
-import axios, { type AxiosResponse } from "axios";
+import type { Config, ConfigId } from "@/types/config";
+import axios from "axios";
 
 class ConfigService {
     private baseUrl: string;
@@ -8,13 +8,16 @@ class ConfigService {
         this.baseUrl = "http://localhost:8080/configs"
     }
 
-    async getAll(): Promise<AxiosResponse<Config[]>> {
-        console.log('invoked get all')
-        return axios.get<Config[]>(`${this.baseUrl}/all`)
+    async getAll(): Promise<Config[]> {
+        return (await axios.get<Config[]>(`${this.baseUrl}/all`)).data
     }
 
     async save(dto: Config): Promise<void> {
-        return axios.post(`${this.baseUrl}/save`, dto)
+        return axios.put(`${this.baseUrl}/save`, dto)
+    }
+
+    async del(id: ConfigId): Promise<void> {
+        return axios.delete(`${this.baseUrl}/${id}`)
     }
 }
 

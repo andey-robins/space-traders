@@ -1,7 +1,9 @@
 package repositories
 
 import (
+	"database/sql"
 	"fmt"
+	"log"
 	"sync"
 
 	"github.com/andey-robins/space-traders/stback/models"
@@ -19,6 +21,13 @@ func CreateConfigRepository() *ConfigRepository {
 		configRepoInstance = &ConfigRepository{db: Connect()}
 	})
 	return configRepoInstance
+}
+
+func (cr *ConfigRepository) Create(config *models.Config) error {
+	log.Println("create config")
+	q := "INSERT INTO Config (Key, Value) VALUES (?, ?)"
+	_, err := cr.db.db.Exec(q, config.Key, config.Value)
+	return err
 }
 
 func (cr *ConfigRepository) GetAll() ([]*models.Config, error) {
@@ -48,12 +57,34 @@ func (cr *ConfigRepository) GetAll() ([]*models.Config, error) {
 	return configData, nil
 }
 
-func (cr *ConfigRepository) Save(config *models.Config) error {
-	// updateQuery := "UPDATE Config SET Key = ?, Value = ? WHERE Id = ?"
-	insertQuery := "INSERT INTO Config (Id, Key, Value) VALUES (?, ?, ?)"
+func (cr *ConfigRepository) GetById(id models.ConfigId) (*models.Config, error) {
+	q := "SELECT Id, Key, Value FROM Config WHERE Id = ?"
+	row := cr.db.db.QueryRow(q, id)
 
-	//_, err := cr.db.db.Exec(updateQuery, config.Key, config.Value, config.Id)
-	_, err := cr.db.db.Exec(insertQuery, nil, config.Key, config.Value)
+	var cfg models.Config
+	if err := row.Scan(
+		&cfg.Id,
+		&cfg.Key,
+		&cfg.Value,
+	); err != nil && err != sql.ErrNoRows {
+		return nil, fmt.Errorf("error scanning config: %w", err)
+	} else if err == sql.ErrNoRows {
+		return nil, nil
+	}
 
+	return &cfg, nil
+}
+
+func (cr *ConfigRepository) Update(config *models.Config) error {
+	log.Println("update config")
+	q := "UPDATE Config SET Key = ?, Value = ? WHERE Id = ?"
+	_, err := cr.db.db.Exec(q, config.Key, config.Value, config.Id)
+	return err
+}
+
+func (cr *ConfigRepository) Delete(id models.ConfigId) error {
+	log.Println("deleting config")
+	q := "DELETE FROM Config WHERE Id = ?"
+	_, err := cr.db.db.Exec(q, id)
 	return err
 }

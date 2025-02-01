@@ -5,5 +5,6 @@ export type Base = {
 export type DataTableHeader = {
     title: string;
     key: string;
-    align?: 'start' | 'end'
+    align?: 'start' | 'end';
+    width?: number;
 }
